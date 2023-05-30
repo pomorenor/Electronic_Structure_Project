@@ -1,0 +1,16 @@
+#Configuration file for the project, first two numbers are NMO and NCGFC
+#NMO (Number of molecular orbitals)
+#NCGFC (Number of CGF coefficients)
+#Basis Set
+
+NMO NCGFC Basis
+2 2 STO-3G
+
+Atom C O
+x 1.0 2.0
+y 1.0 2.0
+z 1.0 2.0
+
+MO1 MO2
+0.54586 1.24625
+0.54586 -1.24625
