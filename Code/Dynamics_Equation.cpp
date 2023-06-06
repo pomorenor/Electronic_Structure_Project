@@ -8,19 +8,12 @@ typedef std::complex<double> state_type;
 
 //QDDM stands for Quantum Dynamics of Density Matrix
 // This Functor implements de TD-ODE
-struct QDDM
+// This functor is for the rho_ee component TD
+struct QDDM_ee
 {
   double m_gamma;
 
-  /*
-  void operator()()
-  {
-    const std::complex<double> I(0.0, 1.0);
-    std::cout << I << std::endl;
-    std::cout << imag(I) <<std::endl;
-  }
-*/
-  QDDM(double gamma = 1.0): m_gamma(gamma) {}
+  QDDM_ee(double gamma = 1.0): m_gamma(gamma) {}
 
   // This first differential equation is the one associated with rho_ee
   void operator()(const state_type &rho, state_type &drhodt, double t)
@@ -30,6 +23,27 @@ struct QDDM
   }
 
 };
+
+// This functor is for the rho_eg component TD
+struct QDDM_eg
+{
+  double m_gamma;
+  double m_omega_0;
+
+  QDDM_eg(double gamma = 1.0, double omega_0 = 100): m_gamma(gamma), m_omega_0(omega_0) {}
+
+  void operator()(const state_type &rho, state_type &drhodt, double t)
+  {
+    const std::complex<double> I(0.0, 1.0);
+    drhodt = -m_gamma*rho - I*m_omega_0*rho;
+  }
+
+
+};
+
+
+
+
 
 // We now need something to print
 struct streaming_observer
@@ -56,7 +70,7 @@ int main(void)
 
   typedef boost::numeric::odeint::runge_kutta4< state_type > stepper_type;
 
-  boost::numeric::odeint::integrate_const(stepper_type(), QDDM(1.0), x, 0.0, 10.0, dt ,streaming_observer(std::cout));
+  boost::numeric::odeint::integrate_const(stepper_type(), QDDM_eg(1.0), x, 0.0, 10.0, dt ,streaming_observer(std::cout));
 
   return 0;
 }
