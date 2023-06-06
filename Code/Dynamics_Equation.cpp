@@ -1,5 +1,6 @@
 #include <iostream>
 #include <complex>
+#include <boost/array.hpp>
 #include <boost/numeric/odeint.hpp>
 
 
@@ -44,12 +45,18 @@ struct streaming_observer
         m_out << "\t" << x.real() << "\t" << x.imag() ;
         m_out << "\n";
     }
+  };
 
 
 int main(void)
 {
+  state_type x = (0.0,1.0);
+
+  const double dt = 0.1;
+
   typedef boost::numeric::odeint::runge_kutta4< state_type > stepper_type;
 
+  boost::numeric::odeint::integrate_const(stepper_type(), QDDM(1.0), x, 0.0, 10.0, dt ,streaming_observer(std::cout));
 
   return 0;
 }
