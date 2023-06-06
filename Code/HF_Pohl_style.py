@@ -41,6 +41,11 @@ def CGF_exponents_of_each_orbital(orbitals_exponents, contraction_scaled_exponen
 
     return orbitals_exponents
 
+def Centers(Center_array, R_A, R_B):
+    Center_array[0] = R_A
+    Center_array[1] = R_B
+
+    return Center_array
 ######################################################################
 
 def normalized_two_centers_gaussian_integral(alpha, R_A, beta, R_B):
@@ -51,9 +56,10 @@ def normalized_two_centers_gaussian_integral(alpha, R_A, beta, R_B):
 
 def kinetic_integral(alpha, R_A, beta, R_B):
     normalization = (2*alpha/np.pi)**0.75*(2*beta/np.pi)**0.75
-    integral_value = alpha*beta/(alpha+beta)*(3.0-2.0*alpha*beta*np.abs(R_A-R_B)**2/(alpha+beta))*(np.pi/(alpha+beta))**1.5*np.exp(-alpha*beta*np.abs(R_A-R_B)**2/(alpha+beta))
+    integral_first_part = alpha*beta/(alpha+beta)*((3.0-2.0*alpha*beta*np.abs(R_A-R_B)**2)/(alpha+beta))*(np.pi/(alpha+beta))**1.5
+    integral_exp =  np.exp(((-alpha*beta/(alpha + beta)))*np.abs(R_A - R_B)**2)
 
-    return normalization*integral_value
+    return normalization*integral_first_part*integral_exp
 
 def kinetic_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, R_A, R_B, contraction_length,contraction_coefficients_of_orbitals):
     T = 0.0
@@ -67,15 +73,11 @@ def kinetic_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, R_A, R_
 
     return T
 
-def overlap_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, R_A, R_B, contraction_length,contraction_coefficients_of_orbitals):
+def overlap_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
     S_11 = 0.0
     for p in range(0,contraction_length):
         for q in range(0,contraction_length):
-            if (mu == nu):
-                R_A = R_B
-                S_11 += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*normalized_two_centers_gaussian_integral(contraction_exponents_of_orbitals[mu][p], R_A, contraction_exponents_of_orbitals[nu][q], R_B)
-            else:
-                S_11 += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*normalized_two_centers_gaussian_integral(contraction_exponents_of_orbitals[mu][p], R_A, contraction_exponents_of_orbitals[nu][q], R_B)
+            S_11 += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*normalized_two_centers_gaussian_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu])
     return S_11
 
 
@@ -83,22 +85,28 @@ def overlap_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, R_A, R_
 
 orbitals_coefficients = [[],[]]
 orbital_exponents = [[],[]]
+CENTERS = [[],[]]
+
+R_A = 0.0
+R_B = 1.4
 
 scaled_exponents = scale_exponents(3, contraction_exponents_zeta_1, 1.24)
 
 construct_initial_orbitals = CGF_of_each_orbital(orbitals_coefficients, contraction_coefficients[2])
 construct_initial_orbitals_exponents = CGF_exponents_of_each_orbital(orbital_exponents, scaled_exponents)
+array_of_centers = Centers(CENTERS, R_A, R_B)
 
-S_12 = overlap_integral_with_CGF(1,0,construct_initial_orbitals_exponents, 0.0, 1.4, 3,construct_initial_orbitals)
-S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, 0.0, 1.4, 3,construct_initial_orbitals)
+S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
 
-T_11 = kinetic_integral_with_CGF(1,1,construct_initial_orbitals_exponents, 0.0, 1.4, 3,construct_initial_orbitals)
+#T_11 = kinetic_integral_with_CGF(1,0,construct_initial_orbitals_exponents, 0.0, 1.4, 3,construct_initial_orbitals)
 
 print(scaled_exponents)
 print(construct_initial_orbitals_exponents)
 print(construct_initial_orbitals)
+print(array_of_centers)
 print(S_12)
-print(T_11)
+
+#print(T_11)
 ######################################################
 ## Now we write the code to compute the integrals ###
 ######################################################
