@@ -61,16 +61,11 @@ def kinetic_integral(alpha, R_A, beta, R_B):
 
     return normalization*integral_first_part*integral_exp
 
-def kinetic_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, R_A, R_B, contraction_length,contraction_coefficients_of_orbitals):
+def kinetic_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
     T = 0.0
     for p in range(0, contraction_length):
         for q in range(0,contraction_length):
-            if (mu == nu):
-                R_A = R_B
-                T += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*kinetic_integral(contraction_exponents_of_orbitals[mu][p], R_A, contraction_exponents_of_orbitals[nu][q], R_B)
-        else:
-            T += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*kinetic_integral(contraction_exponents_of_orbitals[mu][p], R_A, contraction_exponents_of_orbitals[nu][q], R_B)
-
+            T += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*kinetic_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu])
     return T
 
 def overlap_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
@@ -80,7 +75,7 @@ def overlap_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros
             S_11 += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*normalized_two_centers_gaussian_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu])
     return S_11
 
-
+def Coulomb_nucleus_integrals():
 
 
 orbitals_coefficients = [[],[]]
@@ -98,7 +93,7 @@ array_of_centers = Centers(CENTERS, R_A, R_B)
 
 S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
 
-#T_11 = kinetic_integral_with_CGF(1,0,construct_initial_orbitals_exponents, 0.0, 1.4, 3,construct_initial_orbitals)
+T_11 = kinetic_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
 
 print(scaled_exponents)
 print(construct_initial_orbitals_exponents)
@@ -106,7 +101,7 @@ print(construct_initial_orbitals)
 print(array_of_centers)
 print(S_12)
 
-#print(T_11)
+print(T_11)
 ######################################################
 ## Now we write the code to compute the integrals ###
 ######################################################
