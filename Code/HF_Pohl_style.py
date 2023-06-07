@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import special
 import math
-
+import matplotlib.pyplot as plt
 
 
 ######################################################
@@ -63,14 +63,23 @@ def kinetic_integral(alpha, R_A, beta, R_B):
 
     return normalization*integral_first_part*integral_exp
 
+
+def F_0(t):
+    if (t<1e-6):
+        return 1.0-t/3.0
+    else:
+        return 0.5*(np.pi/t)**0.5*special.erf(t**(0.5))
+
+
 def nuclear_attraction_integral(alpha, R_A, beta, R_B, nuclei_Z, nuclei_coords):
 
-    R_p = (alpha*R_A + beta*R_B)/(alpha + beta)
-    normalization = ((2.0*alpha)/np.pi)**0.75*((2.0*beta)/np.pi)**0.75
-    integral_exp =  np.exp(((-alpha*beta)/(alpha+beta))*np.abs(R_A-R_B)**2)
-    erf_part = special.erf((alpha + beta)*np.abs(R_p - nuclei_coords)**2)
-
-    return ((-2.0*np.pi*nuclei_Z)/(alpha + beta))*normalization*integral_exp*erf_part
+    R_C = nuclei_coords
+    R_p =(alpha*R_A + beta*R_B)/(alpha + beta)
+    normalization = (2.0*alpha/np.pi)**0.75*(2.0*beta/np.pi)**0.75
+    exp_part = np.exp(((-alpha*beta)/(alpha + beta))*np.abs(R_A-R_B)**2)
+    F0 = F_0((alpha+beta)*np.abs(R_p - R_C)**2)
+    factor = -2.0*np.pi/(alpha + beta)
+    return normalization*factor*nuclei_Z*exp_part*F0
 
 
 def kinetic_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
@@ -110,19 +119,18 @@ array_of_centers = Centers(CENTERS, R_A, R_B)
 S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
 
 T_11 = kinetic_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
-V1_11 = nuclear_attraction_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,2,1.4)
+V1_11 = nuclear_attraction_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,1,0)
 
-print(scaled_exponents)
-print(construct_initial_orbitals_exponents)
-print(construct_initial_orbitals)
-print(array_of_centers)
-print(S_12)
-print(T_11)
-print(V1_11)
+t(scaled_exponents)
+#print(construct_initial_orbitals_exponents)
+#print(construct_initial_orbitals)
+#print(array_of_centers)
+#print(S_12)
+#print(T_11)
+#print(V1_11)
 ######################################################
 ## Now we write the code to compute the integrals ###
 ######################################################
-
 
 
 ####################################################
