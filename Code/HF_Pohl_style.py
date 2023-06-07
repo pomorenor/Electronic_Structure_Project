@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 
 
@@ -55,9 +56,9 @@ def normalized_two_centers_gaussian_integral(alpha, R_A, beta, R_B):
     return normalization*K*integral_value
 
 def kinetic_integral(alpha, R_A, beta, R_B):
-    normalization = (2*alpha/np.pi)**0.75*(2*beta/np.pi)**0.75
-    integral_first_part = alpha*beta/(alpha+beta)*((3.0-2.0*alpha*beta*np.abs(R_A-R_B)**2)/(alpha+beta))*(np.pi/(alpha+beta))**1.5
-    integral_exp =  np.exp(((-alpha*beta/(alpha + beta)))*np.abs(R_A - R_B)**2)
+    normalization = ((2.0*alpha)/np.pi)**0.75*((2.0*beta)/np.pi)**0.75
+    integral_first_part = ((alpha*beta)/(alpha + beta))*(3.0-((2.0*alpha*beta*np.abs(R_A-R_B)**2)/(alpha+beta)))*(np.pi/(alpha+beta))**1.5
+    integral_exp =  np.exp(((-alpha*beta)/(alpha+beta))*np.abs(R_A-R_B)**2)
 
     return normalization*integral_first_part*integral_exp
 
@@ -75,7 +76,7 @@ def overlap_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros
             S_11 += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*normalized_two_centers_gaussian_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu])
     return S_11
 
-def Coulomb_nucleus_integrals():
+#   def Nuclear_attraction_integrals():
 
 
 orbitals_coefficients = [[],[]]
