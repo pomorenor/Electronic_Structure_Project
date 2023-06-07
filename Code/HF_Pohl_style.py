@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import special
 import math
 
 
@@ -62,6 +63,16 @@ def kinetic_integral(alpha, R_A, beta, R_B):
 
     return normalization*integral_first_part*integral_exp
 
+def nuclear_attraction_integral(alpha, R_A, beta, R_B, nuclei_Z, nuclei_coords):
+
+    R_p = (alpha*R_A + beta*R_B)/(alpha + beta)
+    normalization = ((2.0*alpha)/np.pi)**0.75*((2.0*beta)/np.pi)**0.75
+    integral_exp =  np.exp(((-alpha*beta)/(alpha+beta))*np.abs(R_A-R_B)**2)
+    erf_part = special.erf((alpha + beta)*np.abs(R_p - nuclei_coords)**2)
+
+    return ((-2.0*np.pi*nuclei_Z)/(alpha + beta))*normalization*integral_exp*erf_part
+
+
 def kinetic_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
     T = 0.0
     for p in range(0, contraction_length):
@@ -70,14 +81,18 @@ def kinetic_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros
     return T
 
 def overlap_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
-    S_11 = 0.0
+    S = 0.0
     for p in range(0,contraction_length):
         for q in range(0,contraction_length):
-            S_11 += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*normalized_two_centers_gaussian_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu])
-    return S_11
+            S += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*normalized_two_centers_gaussian_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu])
+    return S
 
-#   def Nuclear_attraction_integrals():
-
+def nuclear_attraction_integral_with_CGF(mu, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals, nucleus_z, nuclei_coords):
+    V = 0.0
+    for p in range(0, contraction_length):
+        for q in range(0, contraction_length):
+            V += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*nuclear_attraction_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu], nucleus_z, nuclei_coords)
+    return V
 
 orbitals_coefficients = [[],[]]
 orbital_exponents = [[],[]]
@@ -95,14 +110,15 @@ array_of_centers = Centers(CENTERS, R_A, R_B)
 S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
 
 T_11 = kinetic_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
+V1_11 = nuclear_attraction_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,2,1.4)
 
 print(scaled_exponents)
 print(construct_initial_orbitals_exponents)
 print(construct_initial_orbitals)
 print(array_of_centers)
 print(S_12)
-
 print(T_11)
+print(V1_11)
 ######################################################
 ## Now we write the code to compute the integrals ###
 ######################################################
