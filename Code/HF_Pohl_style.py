@@ -48,6 +48,8 @@ def Centers(Center_array, R_A, R_B):
     Center_array[1] = R_B
 
     return Center_array
+
+
 ######################################################################
 
 def normalized_two_centers_gaussian_integral(alpha, R_A, beta, R_B):
@@ -81,13 +83,13 @@ def nuclear_attraction_integral(alpha, R_A, beta, R_B, nuclei_Z, nuclei_coords):
     factor = -2.0*np.pi/(alpha + beta)
     return normalization*factor*nuclei_Z*exp_part*F0
 
-def four_centers_integral(alpha, R_A, beta, R_B, gamma, R_C, delta, R_D):
+def four_centers_integral(alpha, R_A, beta, R_B,  gamma, R_C, delta, R_D):
 
     R_P = (alpha*R_A + beta*R_B)/(alpha + beta)
     R_Q = (gamma*R_C + delta*R_D)/(gamma + delta)
     normalization = (2.0*alpha/np.pi)**0.75*(2.0*beta/np.pi)**0.75*(2.0*gamma/np.pi)**0.75*(2.0*delta/np.pi)**0.75
     factor = 2*np.pi**2.5/((alpha + beta)*(gamma + delta)*(alpha + beta + gamma + delta)**0.5)
-    exp_part = np.exp(((-alpha*beta)/(alpha + beta))*np.abs(R_A-R_B)**2 -  ((-gamma*delta)/(gamma + delta))*np.abs(R_C-R_D)**2)
+    exp_part = np.exp(((-alpha*beta)/(alpha + beta))*np.abs(R_A-R_B)**2 -  ((gamma*delta)/(gamma + delta))*np.abs(R_C-R_D)**2)
     F0 = F_0(((alpha + beta)*(gamma + delta)/(alpha + beta + gamma + delta))*np.abs(R_P -R_Q)**2)
     return normalization*factor*exp_part*F0
 
@@ -118,9 +120,8 @@ def four_centers_integral_with_CGF(mu, nu, pi, ro, contraction_exponents_of_orbi
         for q in range(0, contraction_length):
             for r in range(0, contraction_length):
                 for s in range(0, contraction_length):
-                    Fcenter += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*contraction_coefficients_of_orbitals[pi][r]*contraction_coefficients_of_orbitals[ro][s]*four_centers_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu],contraction_exponents_of_orbitals[pi][r], centros[pi], contraction_exponents_of_orbitals[ro][s], centros[ro])
+                    Fcenter += contraction_coefficients_of_orbitals[mu][p]*contraction_coefficients_of_orbitals[nu][q]*contraction_coefficients_of_orbitals[pi][r]*contraction_coefficients_of_orbitals[ro][s]*four_centers_integral(contraction_exponents_of_orbitals[mu][p], centros[mu], contraction_exponents_of_orbitals[nu][q], centros[nu], contraction_exponents_of_orbitals[pi][r],centros[pi], contraction_exponents_of_orbitals[ro][s], centros[ro])
     return Fcenter
-
 
 
 ######################################################################################################3
@@ -138,13 +139,15 @@ construct_initial_orbitals = CGF_of_each_orbital(orbitals_coefficients, contract
 construct_initial_orbitals_exponents = CGF_exponents_of_each_orbital(orbital_exponents, scaled_exponents)
 array_of_centers = Centers(CENTERS, R_A, R_B)
 
-S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
+#S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
 
-T_11 = kinetic_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
-V1_11 = nuclear_attraction_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,1,0)
+#T_11 = kinetic_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
+#V1_11 = nuclear_attraction_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,1,0)
 
-FCENTER_11 = four_centers_integral_with_CGF(1, 0, 1, 0, construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
+FCENTER_11 = four_centers_integral_with_CGF(1,0,1,0, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
+
 print(FCENTER_11)
+
 ###################################################################
 ## We now construct the matrices that will not change upon SC    ##
 ###################################################################
