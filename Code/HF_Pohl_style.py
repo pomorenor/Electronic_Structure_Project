@@ -28,9 +28,6 @@ def scale_exponents(STO_NG,contraction_exponents_zeta_1,new_zeta):
     elif (STO_NG == 3):
         return [scale(i,new_zeta) for i in contraction_exponents_zeta_1[2]]
 
-
-##########################################################################
-
 def CGF_of_each_orbital(orbitals_coefficients, contraction_coefficients):
     orbitals_coefficients[0] = contraction_coefficients
     orbitals_coefficients[1] = contraction_coefficients
@@ -49,7 +46,8 @@ def Centers(Center_array, R_A, R_B):
 
     return Center_array
 
-
+######################################################################
+##  Now we write the necessary functions for computing the integrals##
 ######################################################################
 
 def normalized_two_centers_gaussian_integral(alpha, R_A, beta, R_B):
@@ -124,7 +122,42 @@ def four_centers_integral_with_CGF(mu, nu, pi, ro, contraction_exponents_of_orbi
     return Fcenter
 
 
-######################################################################################################3
+######################################################################################################
+##    Functions for constructing the matrices that will change during SCG                           ##
+##                                                                                                  ##
+######################################################################################################
+
+def Compute_P_matrix(C, basis_size, num_electrons):
+    P = np.zeros((2,2))
+    for mu in range (0, basis_size):
+        for nu in range(0, basis_size):
+            for a in range(0, int(num_electrons/2)):
+                P[mu][nu] = 2*C[mu][a]*C[nu][a]
+    return P
+
+def Compute_G_Matrix(P_matrix, basis_size, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
+    G= np.zeros((2,2))
+    for mu in range(0, basis_size):
+        for nu in range(0, basis_size):
+            for lambd in range(0, basis_size):
+                for sigma in range(0, basis_size):
+                    G[mu][nu] += P_matrix[lambd][sigma]*(four_centers_integral_with_CGF(mu, nu,sigma, lambd, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals)- 0.5*four_centers_integral_with_CGF(mu, lambd, sigma, nu, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals))
+    return G
+
+
+#def four_centers_integral_with_CGF(mu, nu, pi, ro, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
+
+
+def Compute_Fock_matrix(HCore, P_matrix, basis_size):
+    F = np.zeros((2,2))
+    for mu in range(0,basis_size):
+        for nu in range(0,basis_size):
+            F[mu][nu] = HCore[mu][nu] +P_matrix[mu][nu]
+    return F
+
+
+
+########################################################################################################
 
 orbitals_coefficients = [[],[]]
 orbital_exponents = [[],[]]
@@ -144,9 +177,9 @@ array_of_centers = Centers(CENTERS, R_A, R_B)
 #T_11 = kinetic_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
 #V1_11 = nuclear_attraction_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,1,0)
 
-FCENTER_11 = four_centers_integral_with_CGF(1,0,1,0, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
+#FCENTER_11 = four_centers_integral_with_CGF(1,0,1,0, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
 
-print(FCENTER_11)
+#print(FCENTER_11)
 
 ###################################################################
 ## We now construct the matrices that will not change upon SC    ##
@@ -164,10 +197,12 @@ for i in range(0,2):
         V_2[i][j] = nuclear_attraction_integral_with_CGF(i,j,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,1,1.4)
 
 #####################################################################
-## We now construct the Hcore matrix                               ##
+## We now construct the matrices we will need Hcore matrix         ##
 #####################################################################
 
 Hcore = np.zeros((2,2))
+S_munu = np.zeros((2,2))
+
 
 for i in range(0,2):
     for j in range(0,2):
@@ -175,6 +210,38 @@ for i in range(0,2):
 
 
 
+for i in range (0,2):
+    for j in range(0,2):
+        S_munu[i][j] = overlap_integral_with_CGF(i,j,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
+
+
+#############################################################################
+## We know diagonalize the overlap matrix and obtain X through symmetrical ##
+##diagonalization                                                          ##
+#############################################################################
+
+eigenvalues, U = np.linalg.eig(S_munu)
+s = np.dot(U.T,np.dot(S_munu,U))
+s_half_minus = np.diag(np.diagonal(s)**-0.5)
+X = np.dot(U,np.dot(s_half_minus,U.T))
+
+
+##############################################################################
+## We know initialize the matrices that will change upon SCF               ###
+##############################################################################
+
+P_initial = Compute_P_matrix(np.zeros((2,2)), 2, 2)
+
+## We set the initial P equal to HCore
+for i in range(0,2):
+    for j in range(0,2):
+        P_initial[i][j] = Hcore[i][j]
+
+G_initial = Compute_G_Matrix(P_initial, 2, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
+
+F_inital = Compute_Fock_matrix(Hcore, P_initial, 2)
+#print(S_munu)
+#print(Hcore)
 #print(Hcore)
 #print(T)
 #print(V_1)
