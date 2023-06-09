@@ -148,11 +148,11 @@ def Compute_G_Matrix(P_matrix, basis_size, contraction_exponents_of_orbitals, ce
 #def four_centers_integral_with_CGF(mu, nu, pi, ro, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
 
 
-def Compute_Fock_matrix(HCore, P_matrix, basis_size):
+def Compute_Fock_matrix(HCore, G_matrix, basis_size):
     F = np.zeros((2,2))
     for mu in range(0,basis_size):
         for nu in range(0,basis_size):
-            F[mu][nu] = HCore[mu][nu] +P_matrix[mu][nu]
+            F[mu][nu] = HCore[mu][nu] + G_matrix[mu][nu]
     return F
 
 
@@ -193,7 +193,7 @@ V_2 = np.zeros((2,2))
 for i in range(0,2):
     for j in range(0,2):
         T[i][j] = kinetic_integral_with_CGF(i,j,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
-        V_1[i][j] = nuclear_attraction_integral_with_CGF(i,j,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,1,0)
+        V_1[i][j] = nuclear_attraction_integral_with_CGF(i,j,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,2,0)
         V_2[i][j] = nuclear_attraction_integral_with_CGF(i,j,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals,1,1.4)
 
 #####################################################################
@@ -232,33 +232,56 @@ X = np.dot(U,np.dot(s_half_minus,U.T))
 
 P = Compute_P_matrix(np.zeros((2,2)), 2, 2)
 
-## We set the initial P equal to HCore
-for i in range(0,2):
-    for j in range(0,2):
-        P[i][j] = Hcore[i][j]
-
-G = Compute_G_Matrix(P, 2, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
-
-F = Compute_Fock_matrix(Hcore, P, 2)
-F_prime = np.dot(X.T, np.dot(F,X))
-
-epsilon, C_prime = np.linalg.eig(F_prime)
-
-C = np.dot(X,C_prime)
+#We set the initial P equal to HCore
+#for i in range(0,2):
+#    for j in range(0,2):
+#       P[i][j] = Hcore[i][j]
 
 
+##########################################
+## From here should begin the loop      ##
+##########################################
 
-P_new = Compute_P_matrix(C, 2, 2)
+num_iter = 200
+ii = 0
+tolerance = 1e-11
 
 
-Energy = np.sum(0.5*P*(Hcore+F))
+while(ii < num_iter):
+    ii +=1
+    print("Iteration number: ", ii)
+    G = Compute_G_Matrix(P, 2, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
+
+    F = Compute_Fock_matrix(Hcore, G, 2)
+
+    Energy = np.sum(0.5*P*(Hcore+F))
+
+
+    F_prime = np.dot(X.T, np.dot(F,X))
+
+    epsilon, C_prime = np.linalg.eig(F_prime)
 
 
 
-Delta = (P_new-P)
-Delta = np.sqrt(np.sum(Delta**2)/4.0)
-print("Delta",Delta)
-print(Energy)
+    C = np.dot(X,C_prime)
+
+    OldP = np.array(P)
+    P = np.zeros([2,2])
+
+    P = Compute_P_matrix(C, 2, 2)
+
+
+    Delta = (P-OldP)
+    Delta = np.sqrt(np.sum(Delta**2)/4.0)
+
+    print("Delta",Delta)
+    print("Energy: ", epsilon)
+
+    if (Delta<tolerance):
+        break
+
+
+
 #print(S_munu)
 #print(Hcore)
 #print(Hcore)
