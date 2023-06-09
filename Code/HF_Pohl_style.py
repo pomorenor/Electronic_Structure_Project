@@ -132,7 +132,7 @@ def Compute_P_matrix(C, basis_size, num_electrons):
     for mu in range (0, basis_size):
         for nu in range(0, basis_size):
             for a in range(0, int(num_electrons/2)):
-                P[mu][nu] = 2*C[mu][a]*C[nu][a]
+                P[mu][nu] = 2.0*C[mu][a]*C[nu][a]
     return P
 
 def Compute_G_Matrix(P_matrix, basis_size, contraction_exponents_of_orbitals, centros, contraction_length,contraction_coefficients_of_orbitals):
@@ -166,7 +166,10 @@ CENTERS = [[],[]]
 R_A = 0.0
 R_B = 1.4
 
-scaled_exponents = scale_exponents(3, contraction_exponents_zeta_1, 1.24)
+scaled_exponents = scale_exponents(3, contraction_exponents_zeta_1, 1.69)
+#scaled_exponents = scale_exponents(3, contraction_exponents_zeta_1, 1.69)
+
+
 
 construct_initial_orbitals = CGF_of_each_orbital(orbitals_coefficients, contraction_coefficients[2])
 construct_initial_orbitals_exponents = CGF_exponents_of_each_orbital(orbital_exponents, scaled_exponents)
@@ -275,7 +278,7 @@ while(ii < num_iter):
     Delta = np.sqrt(np.sum(Delta**2)/4.0)
 
     print("Delta",Delta)
-    print("Energy: ", epsilon)
+    print("Energy: ", Energy)
 
     if (Delta<tolerance):
         break
