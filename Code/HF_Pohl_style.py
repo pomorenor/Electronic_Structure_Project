@@ -227,19 +227,38 @@ X = np.dot(U,np.dot(s_half_minus,U.T))
 
 
 ##############################################################################
-## We know initialize the matrices that will change upon SCF               ###
+## We know start the SCF procedure                                         ###
 ##############################################################################
 
-P_initial = Compute_P_matrix(np.zeros((2,2)), 2, 2)
+P = Compute_P_matrix(np.zeros((2,2)), 2, 2)
 
 ## We set the initial P equal to HCore
 for i in range(0,2):
     for j in range(0,2):
-        P_initial[i][j] = Hcore[i][j]
+        P[i][j] = Hcore[i][j]
 
-G_initial = Compute_G_Matrix(P_initial, 2, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
+G = Compute_G_Matrix(P, 2, construct_initial_orbitals_exponents, array_of_centers,3,construct_initial_orbitals)
 
-F_inital = Compute_Fock_matrix(Hcore, P_initial, 2)
+F = Compute_Fock_matrix(Hcore, P, 2)
+F_prime = np.dot(X.T, np.dot(F,X))
+
+epsilon, C_prime = np.linalg.eig(F_prime)
+
+C = np.dot(X,C_prime)
+
+
+
+P_new = Compute_P_matrix(C, 2, 2)
+
+
+Energy = np.sum(0.5*P*(Hcore+F))
+
+
+
+Delta = (P_new-P)
+Delta = np.sqrt(np.sum(Delta**2)/4.0)
+print("Delta",Delta)
+print(Energy)
 #print(S_munu)
 #print(Hcore)
 #print(Hcore)
