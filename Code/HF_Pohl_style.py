@@ -34,9 +34,9 @@ def CGF_of_each_orbital(orbitals_coefficients, contraction_coefficients):
 
     return orbitals_coefficients
 
-def CGF_exponents_of_each_orbital(orbitals_exponents, contraction_scaled_exponents):
-    orbitals_exponents[0] = contraction_scaled_exponents
-    orbitals_exponents[1] = contraction_scaled_exponents
+def CGF_exponents_of_each_orbital(orbitals_exponents, contraction_scaled_exponents_first_atom, contraction_scaled_exponents_second_atom):
+    orbitals_exponents[0] = contraction_scaled_exponents_first_atom
+    orbitals_exponents[1] = contraction_scaled_exponents_second_atom
 
     return orbitals_exponents
 
@@ -166,13 +166,13 @@ CENTERS = [[],[]]
 R_A = 0.0
 R_B = 1.4
 
-scaled_exponents = scale_exponents(3, contraction_exponents_zeta_1, 1.69)
-#scaled_exponents = scale_exponents(3, contraction_exponents_zeta_1, 1.69)
+scaled_exponents_atom_1 = scale_exponents(3, contraction_exponents_zeta_1, 2.0925)
+scaled_exponents_atom_2 = scale_exponents(3, contraction_exponents_zeta_1, 1.24)
 
 
 
 construct_initial_orbitals = CGF_of_each_orbital(orbitals_coefficients, contraction_coefficients[2])
-construct_initial_orbitals_exponents = CGF_exponents_of_each_orbital(orbital_exponents, scaled_exponents)
+construct_initial_orbitals_exponents = CGF_exponents_of_each_orbital(orbital_exponents, scaled_exponents_atom_1, scaled_exponents_atom_2)
 array_of_centers = Centers(CENTERS, R_A, R_B)
 
 #S_12 = overlap_integral_with_CGF(1,1,construct_initial_orbitals_exponents, array_of_centers, 3,construct_initial_orbitals)
