@@ -278,7 +278,7 @@ while(ii < num_iter):
     Delta = np.sqrt(np.sum(Delta**2)/4.0)
 
     print("Delta",Delta)
-    print("Energy: ", Energy)
+    print("Electronic Energy: ", Energy)
 
     if (Delta<tolerance):
         break
