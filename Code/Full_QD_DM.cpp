@@ -62,7 +62,7 @@ int main(void)
   */
 
   double gamma = 0.62;
-  double Omega = 0;
+  double Omega = 0.01;
   double omega_0 = 0.4;
   double omega_l = 0.2;
 
