@@ -27,7 +27,21 @@ struct FQDDM
     drhodt[2] = -m_gamma*rho[1] - I*m_omega_0*rho[1] + I*m_Omega*(rho[3] - rho[0])*std::exp(I*m_omega_l*t);
     drhodt[3] = -2.0*m_gamma*rho[3] + I*m_Omega*(rho[2]*std::exp(I*m_omega_l*t) - rho[1]*std::exp(-I*m_omega_l*t));
   }
+};
 
+
+struct observer
+{
+  std::ostream& m_out;
+
+  observer(std::ostream &out): m_out(out){}
+  template <class State>
+  void operator()(const State &x, double t) const
+  {
+    m_out << t;
+    m_out << "\t" << x[0].real() << "\t" << x[0].imag() ;
+    m_out << "\n";
+  }
 };
 
 
@@ -43,6 +57,11 @@ int main(void)
     std::cout << numeritos[ii] << std::endl;
   }
   */
+
+  state_type rho = {{1.0,0.0},{0.0,0.0},{0.0,0.0},{1.0,1.0}};
+  const double dt = 0.1;
+  typedef boost::numeric::odeint::runge_kutta4< state_type > stepper_type;
+  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(0.62,1.0,0.4 ), rho, 0.0, 10.0, dt, observer(std::cout));
 
 
   return 0;
