@@ -17,7 +17,7 @@ struct FQDDM
   double m_omega_0;
   double m_omega_l;
 
-  FQDDM(double gamma = 1.0, double Omega = 1.0, double omega_0 = 1.0): m_gamma(gamma), m_Omega(Omega), m_omega_0(omega_0) {}
+  FQDDM(double gamma = 1.0, double Omega = 1.0, double omega_0 = 1.0, double omega_l = 1.0): m_gamma(gamma), m_Omega(Omega), m_omega_0(omega_0), m_omega_l(omega_l) {}
 
   void operator()(const state_type &rho, state_type &drhodt, double t)
   {
@@ -38,8 +38,11 @@ struct observer
   template <class State>
   void operator()(const State &x, double t) const
   {
-    m_out << t;
-    m_out << "\t" << x[0].real() << "\t" << x[0].imag() ;
+    //m_out << t;
+    //m_out << "\t" << x[0].real() << "\t" << x[0].imag() << "\t" << x[1].real() << "\t" << x[1].imag() << "\t" << x[2].real() << "\t" << x[2].imag() << "\t" << x[3].real() << "\t" << x[3].imag();
+    //m_out << "\t" << std::norm(x[0]) << "\t" << std::norm(x[1]) << "\t" << std::norm(x[2]) << "\t" << std::norm(x[3]);
+    //m_out << "\t" << x[0].imag() + x[3].imag();
+    m_out << "\t" << x[0].real() << "\t" << x[3].real() << "\t" <<  x[0].real() + x[3].real() ;
     m_out << "\n";
   }
 };
@@ -58,10 +61,15 @@ int main(void)
   }
   */
 
-  state_type rho = {{1.0,0.0},{0.0,0.0},{0.0,0.0},{1.0,1.0}};
+  double gamma = 0.62;
+  double Omega = 0;
+  double omega_0 = 0.4;
+  double omega_l = 0.2;
+
+  state_type rho = {{1.0/2.0*1.0,0.0},{0.0,0.0},{0.0,0.0},{1.0/2.0*1.0,0.0}};
   const double dt = 0.1;
   typedef boost::numeric::odeint::runge_kutta4< state_type > stepper_type;
-  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(0.62,1.0,0.4 ), rho, 0.0, 10.0, dt, observer(std::cout));
+  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(gamma,Omega,omega_0, omega_l), rho, 0.0, 100.0, dt, observer(std::cout));
 
 
   return 0;
