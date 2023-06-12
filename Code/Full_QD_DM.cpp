@@ -22,11 +22,10 @@ struct FQDDM
   void operator()(const state_type &rho, state_type &drhodt, double t)
   {
     const complex_number I(0.0,1.0);
-    drhodt[0] = 2.0*m_gamma*rho[3] -I*m_Omega*();
-    drhodt[0] = 0.0;
-    drhodt[0] = 0.0;
-    drhodt[0] = 0.0;
-
+    drhodt[0] = 2.0*m_gamma*rho[3] - I*m_Omega*(rho[2]*std::exp(I*m_omega_l*t) - rho[1]*std::exp(-I*m_omega_l*t));
+    drhodt[1] = -m_gamma*rho[1] + I*m_omega_0*rho[1] - I*m_Omega*(rho[3] - rho[0])*std::exp(I*m_omega_l*t) ;
+    drhodt[2] = -m_gamma*rho[1] - I*m_omega_0*rho[1] + I*m_Omega*(rho[3] - rho[0])*std::exp(I*m_omega_l*t);
+    drhodt[3] = -2.0*m_gamma*rho[3] + I*m_Omega*(rho[2]*std::exp(I*m_omega_l*t) - rho[1]*std::exp(-I*m_omega_l*t));
   }
 
 };
