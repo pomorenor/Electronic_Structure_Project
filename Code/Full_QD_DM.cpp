@@ -3,11 +3,15 @@
 #include <boost/array.hpp>
 #include <boost/numeric/odeint.hpp>
 #include <cmath>
+#include <vector>
+#include <math.h>
 
 
 typedef std::complex<double> complex_number;
 typedef complex_number state_type[4];
 
+double Omega(std::vector<double> dipole_molecule, std::vector<double> E_Field, double alpha, double epsilon);
+double gamma(std::vector<double> dipole_molecule, double omega_0);
 
 //FQDDM stands for full
 struct FQDDM
@@ -73,4 +77,20 @@ int main(void)
 
 
   return 0;
+}
+
+
+double Omega(std::vector<double> dipole_molecule, std::vector<double> E_Field, double alpha, double epsilon )
+{
+  double Omega_hat = std::inner_product(dipole_molecule.begin(), dipole_molecule.end(), E_Field.begin(), 0);
+  return epsilon*alpha*Omega_hat;
+}
+
+double gamma(std::vector<double> dipole_molecule, double omega_0)
+{
+  double dipole_norm = 0.0;
+  double Gamma = 0.0;
+  dipole_norm = std::inner_product(dipole_molecule.begin(), dipole_molecule.end(), dipole_molecule.begin(), 0);
+  Gamma = dipole_norm*(std::pow(omega_0,3)/(3*M_PI));
+  return Gamma;
 }
