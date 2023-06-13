@@ -10,8 +10,8 @@
 typedef std::complex<double> complex_number;
 typedef complex_number state_type[4];
 
-double Omega(std::vector<double> dipole_molecule, std::vector<double> E_Field, double alpha, double epsilon);
-double gamma(std::vector<double> dipole_molecule, double omega_0);
+double Omeg(std::vector<double> dipole_molecule, std::vector<double> E_Field, double alpha, double epsilon);
+double gamm(std::vector<double> dipole_molecule, double omega_0);
 
 //FQDDM stands for full
 struct FQDDM
@@ -42,7 +42,7 @@ struct observer
   template <class State>
   void operator()(const State &x, double t) const
   {
-    //m_out << t;
+    m_out << t;
     //m_out << "\t" << x[0].real() << "\t" << x[0].imag() << "\t" << x[1].real() << "\t" << x[1].imag() << "\t" << x[2].real() << "\t" << x[2].imag() << "\t" << x[3].real() << "\t" << x[3].imag();
     //m_out << "\t" << std::norm(x[0]) << "\t" << std::norm(x[1]) << "\t" << std::norm(x[2]) << "\t" << std::norm(x[3]);
     //m_out << "\t" << x[0].imag() + x[3].imag();
@@ -65,32 +65,49 @@ int main(void)
   }
   */
 
-  double gamma = 0.62;
-  double Omega = 0.01;
-  double omega_0 = 0.4;
-  double omega_l = 0.2;
+  std::vector<double> Dipole_g= {0.0000, 0.0000, -0.0570};
+  std::vector<double> E_field = {0.000,0.000,-40.0};
+  //Here we convert the values from Debye to SI
 
-  state_type rho = {{1.0/2.0*1.0,0.0},{0.0,0.0},{0.0,0.0},{1.0/2.0*1.0,0.0}};
-  const double dt = 0.1;
+
+  //0.036 for converting to Hartrees
+  //double omega_0 = 644553.7847;
+  double omega_0 = 5.8208;
+  double omega_l = 5.28208;
+
+  //double Omega = Omeg(Dipole_g, E_field, 1.0,1.0);
+  double gamma = gamm(Dipole_g, omega_0);
+  double Omega = 0*gamma;
+
+
+  state_type rho = {{0.5,0.0},{0.0,0.0},{0.0,0.0},{0.5,0.0}};
+  const double dt = 0.05;
   typedef boost::numeric::odeint::runge_kutta4< state_type > stepper_type;
-  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(gamma,Omega,omega_0, omega_l), rho, 0.0, 100.0, dt, observer(std::cout));
+  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(gamma,Omega,omega_0, omega_l), rho, 0.0, 50.0, dt, observer(std::cout));
 
 
   return 0;
 }
 
 
-double Omega(std::vector<double> dipole_molecule, std::vector<double> E_Field, double alpha, double epsilon )
+double Omeg(std::vector<double> dipole_molecule, std::vector<double> E_Field, double alpha, double epsilon )
 {
-  double Omega_hat = std::inner_product(dipole_molecule.begin(), dipole_molecule.end(), E_Field.begin(), 0);
+
+  double Omega_hat;
+  for(int ii = 0; ii < 3; ++ii){
+    Omega_hat += dipole_molecule[ii]*E_Field[ii];
+  }
   return epsilon*alpha*Omega_hat;
 }
 
-double gamma(std::vector<double> dipole_molecule, double omega_0)
+double gamm(std::vector<double> dipole_molecule, double omega_0)
 {
   double dipole_norm = 0.0;
   double Gamma = 0.0;
-  dipole_norm = std::inner_product(dipole_molecule.begin(), dipole_molecule.end(), dipole_molecule.begin(), 0);
-  Gamma = dipole_norm*(std::pow(omega_0,3)/(3*M_PI));
-  return Gamma;
+  for(int ii = 0; ii < 3; ++ii){
+    dipole_norm += dipole_molecule[ii]*dipole_molecule[ii];
+  }
+  double dipole_transition = 2.0;
+  Gamma = dipole_transition*(4.0/3.0)*(std::pow(omega_0*0.036,3)/std::pow(137,3));
+  return 0.2;
 }
