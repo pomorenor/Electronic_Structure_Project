@@ -72,24 +72,25 @@ int main(void)
 
   //0.036 for converting to Hartrees
   //double omega_0 = 644553.7847;
-  double omega_0 = 5.8208;
-  double omega_l = 0.0;
+  //double omega_0 = 5.8208;
+  double omega_l = 0;
+  double omega_0 = 0;
 
 
   //double gamma = gamm(Dipole_g, omega_0);
   //double Omega = Omeg(Dipole_g, E_field, 1.0,1.0);
-  //double gamma = 0.0;
-  //double Omega = Omeg(Dipole_g, E_field, 1.0,1.0);
+  double gamma = 0.0;
+  double Omega = Omeg(Dipole_g, E_field, 1.0,1.0);
 
-  double gamma = gamm(Dipole_g, omega_0);
-  double Omega = 10*gamma;
+  //double gamma = gamm(Dipole_g, omega_0);
+  //double Omega = 10.5*gamma;
 
 
 
   state_type rho = {{1.0,0.0},{0.0,0.0},{0.0,0.0},{0.0,0.0}};
-  const double dt = 0.005;
+  const double dt = 0.001;
   typedef boost::numeric::odeint::runge_kutta4< state_type > stepper_type;
-  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(gamma,Omega,omega_0, omega_l), rho, 0.0, 1000.0, dt, observer(std::cout));
+  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(gamma,Omega,omega_0, omega_l), rho, 0.0, 40.0, dt, observer(std::cout));
 
 
   return 0;
