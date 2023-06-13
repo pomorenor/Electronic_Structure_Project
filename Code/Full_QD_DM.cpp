@@ -28,7 +28,7 @@ struct FQDDM
     const complex_number I(0.0,1.0);
     drhodt[0] = 2.0*m_gamma*rho[3] - I*m_Omega*(rho[2]*std::exp(I*m_omega_l*t) - rho[1]*std::exp(-I*m_omega_l*t));
     drhodt[1] = -m_gamma*rho[1] + I*m_omega_0*rho[1] - I*m_Omega*(rho[3] - rho[0])*std::exp(I*m_omega_l*t) ;
-    drhodt[2] = -m_gamma*rho[1] - I*m_omega_0*rho[1] + I*m_Omega*(rho[3] - rho[0])*std::exp(I*m_omega_l*t);
+    drhodt[2] = -m_gamma*rho[1] - I*m_omega_0*rho[1] + I*m_Omega*(rho[3] - rho[0])*std::exp(-I*m_omega_l*t);
     drhodt[3] = -2.0*m_gamma*rho[3] + I*m_Omega*(rho[2]*std::exp(I*m_omega_l*t) - rho[1]*std::exp(-I*m_omega_l*t));
   }
 };
@@ -73,17 +73,23 @@ int main(void)
   //0.036 for converting to Hartrees
   //double omega_0 = 644553.7847;
   double omega_0 = 5.8208;
-  double omega_l = 5.28208;
+  double omega_l = 0.0;
 
+
+  //double gamma = gamm(Dipole_g, omega_0);
   //double Omega = Omeg(Dipole_g, E_field, 1.0,1.0);
+  //double gamma = 0.0;
+  //double Omega = Omeg(Dipole_g, E_field, 1.0,1.0);
+
   double gamma = gamm(Dipole_g, omega_0);
-  double Omega = 0*gamma;
+  double Omega = 10*gamma;
 
 
-  state_type rho = {{0.5,0.0},{0.0,0.0},{0.0,0.0},{0.5,0.0}};
-  const double dt = 0.05;
+
+  state_type rho = {{1.0,0.0},{0.0,0.0},{0.0,0.0},{0.0,0.0}};
+  const double dt = 0.005;
   typedef boost::numeric::odeint::runge_kutta4< state_type > stepper_type;
-  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(gamma,Omega,omega_0, omega_l), rho, 0.0, 50.0, dt, observer(std::cout));
+  boost::numeric::odeint::integrate_const(stepper_type(), FQDDM(gamma,Omega,omega_0, omega_l), rho, 0.0, 1000.0, dt, observer(std::cout));
 
 
   return 0;
